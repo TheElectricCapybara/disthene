@@ -99,7 +99,7 @@ public class Disthene {
             blacklistService = new BlacklistService(blackListConfiguration);
 
             logger.info("Creating metric service");
-            metricService = new MetricService(bus, blacklistService);
+            metricService = new MetricService(bus, blacklistService, distheneConfiguration);
 
             logger.info("Creating stats");
             statsService = new StatsService(bus, distheneConfiguration.getStats(), distheneConfiguration.getCarbon().getBaseRollup());
@@ -129,7 +129,7 @@ public class Disthene {
             sumService = new SumService(bus, distheneConfiguration, aggregationConfiguration, blacklistService);
 
             logger.info("Creating rollup aggregator");
-            rollupService = new RollupService(bus, distheneConfiguration, distheneConfiguration.getCarbon().getRollups());
+            rollupService = new RollupService(bus, distheneConfiguration);
 
             logger.info("Starting carbon");
             carbonServer = new CarbonServer(distheneConfiguration, bus);

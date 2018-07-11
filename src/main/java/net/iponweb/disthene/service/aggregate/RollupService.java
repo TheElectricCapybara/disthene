@@ -10,6 +10,7 @@ import net.iponweb.disthene.bean.Metric;
 import net.iponweb.disthene.bean.MetricKey;
 import net.iponweb.disthene.config.DistheneConfiguration;
 import net.iponweb.disthene.config.Rollup;
+import net.iponweb.disthene.events.MetricAggregateEvent;
 import net.iponweb.disthene.events.DistheneEvent;
 import net.iponweb.disthene.events.MetricStoreEvent;
 import net.iponweb.disthene.util.NamedThreadFactory;
@@ -30,7 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Listener(references= References.Strong)
 public class RollupService {
     private static final String SCHEDULER_NAME = "distheneRollupAggregatorFlusher";
-    private static final int RATE = 60;
+    private static final int RATE = 10;
     private volatile boolean shuttingDown = false;
 
     private Logger logger = Logger.getLogger(RollupService.class);
@@ -38,15 +39,19 @@ public class RollupService {
     private MBassador<DistheneEvent> bus;
     private DistheneConfiguration distheneConfiguration;
     private Rollup maxRollup;
+    private Rollup baseRollup;
     private List<Rollup> rollups;
+    private boolean aggregateBaseRollup;
 
     private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1, new NamedThreadFactory(SCHEDULER_NAME));
 
     private final ConcurrentNavigableMap<Long, ConcurrentMap<MetricKey, AverageRecord>> accumulator = new ConcurrentSkipListMap<>();
 
-    public RollupService(MBassador<DistheneEvent> bus, DistheneConfiguration distheneConfiguration, List<Rollup> rollups) {
+    public RollupService(MBassador<DistheneEvent> bus, DistheneConfiguration distheneConfiguration) {
         this.distheneConfiguration = distheneConfiguration;
-        this.rollups = rollups;
+        this.rollups = distheneConfiguration.getCarbon().getRollups();
+        this.baseRollup = distheneConfiguration.getCarbon().getBaseRollup();
+        this.aggregateBaseRollup = distheneConfiguration.getCarbon().getAggregateBaseRollup();
         this.bus = bus;
         bus.subscribe(this);
 
@@ -66,8 +71,18 @@ public class RollupService {
 
     @Handler(rejectSubtypes = false)
     public void handle(MetricStoreEvent metricStoreEvent) {
-        if (rollups.size() > 0 && maxRollup.getRollup() > metricStoreEvent.getMetric().getRollup()) {
+	// disabled if aggregateBaseRollup is true
+        if (!aggregateBaseRollup && rollups.size() > 0 && maxRollup.getRollup() > metricStoreEvent.getMetric().getRollup()) {
             aggregate(metricStoreEvent.getMetric());
+        }
+    }
+
+    @Handler(rejectSubtypes = false)
+    public void handle(MetricAggregateEvent metricAggregateEvent) {
+        // aggregate all rollups (baseRollup and rollups) from MetricAggregateEvent
+        aggregateBaseRollup(metricAggregateEvent.getMetric());
+        if (rollups.size() > 0 && maxRollup.getRollup() > metricAggregateEvent.getMetric().getRollup()) {
+            aggregate(metricAggregateEvent.getMetric());
         }
     }
 
@@ -108,6 +123,17 @@ public class RollupService {
             AverageRecord averageRecord = getAverageRecord(timestampMap, destinationMetricKey);
             averageRecord.addValue(metric.getValue());
         }
+    }
+
+    private void aggregateBaseRollup(Metric metric) {
+        long timestamp = getRollupTimestamp(metric.getTimestamp(), baseRollup);
+        ConcurrentMap<MetricKey, AverageRecord> timestampMap = getTimestampMap(timestamp);
+        MetricKey destinationMetricKey = new MetricKey(
+                metric.getTenant(), metric.getPath(),
+                baseRollup.getRollup(), baseRollup.getPeriod(),
+                timestamp);
+        AverageRecord averageRecord = getAverageRecord(timestampMap, destinationMetricKey);
+        averageRecord.addValue(metric.getValue());
     }
 
     private void flush() {
