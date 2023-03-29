@@ -8,7 +8,7 @@ import java.util.List;
  */
 @SuppressWarnings("unused")
 public class StoreConfiguration {
-    
+
     public final static String PUT_STRATEGY_APPEND = "APPEND";
     public final static String PUT_STRATEGY_REPLACE = "REPLACE";
 
@@ -180,7 +180,7 @@ public class StoreConfiguration {
             throw new IllegalArgumentException("Invalid putStrategy: " + putStrategy + " - APPEND or REPLACE are alllowed");
         }
     }
-    
+
     @Override
     public String toString() {
         return "StoreConfiguration{" +
