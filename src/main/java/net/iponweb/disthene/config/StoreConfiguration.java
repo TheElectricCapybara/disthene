@@ -8,6 +8,10 @@ import java.util.List;
  */
 @SuppressWarnings("unused")
 public class StoreConfiguration {
+    
+    public final static String PUT_STRATEGY_APPEND = "APPEND";
+    public final static String PUT_STRATEGY_REPLACE = "REPLACE";
+
     private List<String> cluster = new ArrayList<>();
     private String keyspace;
     private String userName;
@@ -22,6 +26,7 @@ public class StoreConfiguration {
     private boolean topologyAware = false;
     private int batchSize;
     private int pool;
+    private String putStrategy = PUT_STRATEGY_APPEND;
     private String tableTemplate = "metric_%s_%d"; //%s - tenant, %d rollup
     private String tableCreateTemplate = "CREATE TABLE IF NOT EXISTS %s.%s (\n" +
             "  path text,\n" +
@@ -164,6 +169,18 @@ public class StoreConfiguration {
         this.tableCreateTemplate = tableCreateTemplate;
     }
 
+    public String getPutStrategy() {
+        return putStrategy;
+    }
+
+    public void setPutStrategy(String putStrategy) {
+        if (putStrategy.equals(PUT_STRATEGY_APPEND) || putStrategy.equals(PUT_STRATEGY_REPLACE)) {
+            this.putStrategy = putStrategy;
+        } else {
+            throw new IllegalArgumentException("Invalid putStrategy: " + putStrategy + " - APPEND or REPLACE are alllowed");
+        }
+    }
+    
     @Override
     public String toString() {
         return "StoreConfiguration{" +
@@ -181,6 +198,7 @@ public class StoreConfiguration {
                 ", topologyAware=" + topologyAware +
                 ", batchSize=" + batchSize +
                 ", pool=" + pool +
+                ", putStrategy='" + putStrategy + '\'' +
                 ", tableTemplate='" + tableTemplate + '\'' +
                 ", tableCreateTemplate='" + tableCreateTemplate + '\'' +
                 '}';

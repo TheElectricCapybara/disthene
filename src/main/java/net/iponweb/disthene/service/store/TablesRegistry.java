@@ -21,7 +21,8 @@ public class TablesRegistry {
     private static final Logger logger = LogManager.getLogger(TablesRegistry.class);
 
     private static final String TABLE_QUERY = "SELECT COUNT(1) FROM SYSTEM_SCHEMA.TABLES WHERE KEYSPACE_NAME=? AND TABLE_NAME=?";
-    private static final String UPSERT_QUERY = "UPDATE %s.%s USING TTL ? SET data = data + ? WHERE path = ? AND time = ?;";
+    private static final String UPSERT_APPEND_QUERY = "UPDATE %s.%s USING TTL ? SET data = data + ? WHERE path = ? AND time = ?;";
+    private static final String UPSERT_REPLACE_QUERY = "UPDATE %s.%s USING TTL ? SET data = [?] WHERE path = ? AND time = ?;";
 
     private final Map<String, PreparedStatement> tables = new HashMap<>();
     private final CqlSession session;
@@ -29,15 +30,24 @@ public class TablesRegistry {
     private final PreparedStatement queryStatement;
 
     private final String tableTemplate;
+    private final String upsertQuery;
     private final ConcurrentMap<String, String> tenants = new ConcurrentHashMap<>();
     private static final Pattern NORMALIZATION_PATTERN = Pattern.compile("[^0-9a-zA-Z_]");
-
 
 
     public TablesRegistry(CqlSession session, StoreConfiguration storeConfiguration) {
         this.session = session;
         this.storeConfiguration = storeConfiguration;
         this.tableTemplate = storeConfiguration.getTableTemplate();
+
+        switch (storeConfiguration.getPutStrategy()) {
+            case storeConfiguration.PUT_STRATEGY_APPEND:
+                this.upsertQuery = UPSERT_APPEND_QUERY;
+                break;
+            case storeConfiguration.PUT_STRATEGY_REPLACE:
+                this.upsertQuery = UPSERT_REPLACE_QUERY;
+                break;
+        }
 
         queryStatement = session.prepare(TABLE_QUERY);
     }
@@ -62,14 +72,14 @@ public class TablesRegistry {
                             logger.error(String.format("Couldn't create table %s", table));
                         } else {
                             logger.debug(String.format("Created table %s. Preparing statement.", table));
-                            tables.put(table, session.prepare(String.format(UPSERT_QUERY, storeConfiguration.getKeyspace(), table)));
+                            tables.put(table, session.prepare(String.format(upsertQuery, storeConfiguration.getKeyspace(), table)));
                         }
                     } catch (Exception e) {
                         logger.error(String.format("Couldn't create table %s", table), e);
                     }
                 } else {
                     logger.debug(String.format("Found table %s. Preparing statement", table));
-                    tables.put(table, session.prepare(String.format(UPSERT_QUERY, storeConfiguration.getKeyspace(), table)));
+                    tables.put(table, session.prepare(String.format(upsertQuery, storeConfiguration.getKeyspace(), table)));
                 }
             }
         }
