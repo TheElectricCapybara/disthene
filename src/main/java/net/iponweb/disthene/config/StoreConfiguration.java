@@ -9,8 +9,8 @@ import java.util.List;
 @SuppressWarnings("unused")
 public class StoreConfiguration {
 
-    public final static String PUT_STRATEGY_APPEND = "APPEND";
-    public final static String PUT_STRATEGY_REPLACE = "REPLACE";
+    public static final String PUT_STRATEGY_APPEND = "APPEND";
+    public static final String PUT_STRATEGY_REPLACE = "REPLACE";
 
     private List<String> cluster = new ArrayList<>();
     private String keyspace;

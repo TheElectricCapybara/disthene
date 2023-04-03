@@ -40,13 +40,10 @@ public class TablesRegistry {
         this.storeConfiguration = storeConfiguration;
         this.tableTemplate = storeConfiguration.getTableTemplate();
 
-        switch (storeConfiguration.getPutStrategy()) {
-            case storeConfiguration.PUT_STRATEGY_APPEND:
-                this.upsertQuery = UPSERT_APPEND_QUERY;
-                break;
-            case storeConfiguration.PUT_STRATEGY_REPLACE:
+        if (storeConfiguration.getPutStrategy() == storeConfiguration.PUT_STRATEGY_REPLACE) {
                 this.upsertQuery = UPSERT_REPLACE_QUERY;
-                break;
+        } else {
+                this.upsertQuery = UPSERT_APPEND_QUERY;
         }
 
         queryStatement = session.prepare(TABLE_QUERY);
