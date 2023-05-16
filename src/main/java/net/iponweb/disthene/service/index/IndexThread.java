@@ -1,8 +1,7 @@
 package net.iponweb.disthene.service.index;
 
 import net.iponweb.disthene.bean.Metric;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.apache.log4j.Logger;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch._types.Refresh;
 import org.opensearch.client.opensearch.core.BulkRequest;
@@ -21,12 +20,12 @@ import java.util.TreeMap;
  * @author Andrei Ivanov
  */
 public class IndexThread extends Thread {
-    private static final Logger logger = LogManager.getLogger(IndexThread.class);
-    private final OpenSearchClient client;
-    private final String index;
-    private final String type;
-    private final int batchSize;
-    private final int flushInterval;
+    private Logger logger = Logger.getLogger(IndexThread.class);
+    private OpenSearchClient client;
+    private String index;
+    private String type;
+    private int batchSize;
+    private int flushInterval;
     protected volatile boolean shutdown = false;
     protected Queue<Metric> metrics;
     ArrayList<Metric> requests = new ArrayList<Metric>();
