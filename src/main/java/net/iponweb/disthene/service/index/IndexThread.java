@@ -15,6 +15,9 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.TreeMap;
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author Andrei Ivanov
@@ -84,8 +87,9 @@ public class IndexThread extends Thread {
                 record.put("path", path);
                 record.put("depth", i + 1);
                 record.put("leaf", (i == parts.length - 1));
+
                 ops.add(new BulkOperation.Builder().index(
-                        IndexOperation.of(io -> io.index(index).id(path).document(record))
+                        IndexOperation.of(io -> io.index(index).id(hashPath(path)).document(record))
                 ).build());
             }
 
@@ -103,6 +107,19 @@ public class IndexThread extends Thread {
             logger.error(e);
         }
         requests = new ArrayList<Metric>();
+    }
+
+    private String hashPath(String path) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] messageDigest = md.digest(path.getBytes());
+            BigInteger signum = new BigInteger(1, messageDigest);
+            String hash = signum.toString(16);
+            return hash;
+        } catch (NoSuchAlgorithmException e) {
+            logger.error("MD5: ", e);
+            return "ERR";
+        }
     }
 
     public void shutdown() {
