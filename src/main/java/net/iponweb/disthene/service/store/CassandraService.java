@@ -81,8 +81,18 @@ public class CassandraService {
         PreparedStatement statement = session.prepare(query);
 
         // Creating writers
-
-        if (storeConfiguration.isBatch()) {
+        if (storeConfiguration.getBatchSize() < 0) {
+            NullWriterThread writerThread = new NullWriterThread(
+                "distheneNullWriter",
+                bus,
+                session,
+                statement,
+                metrics,
+                MoreExecutors.listeningDecorator(Executors.newCachedThreadPool())
+            );
+            writerThreads.add(writerThread);
+            writerThread.start();
+        } else if (storeConfiguration.isBatch()) {
             for (int i = 0; i < storeConfiguration.getPool(); i++) {
                 WriterThread writerThread = new BatchWriterThread(
                         "distheneCassandraBatchWriter" + i,
