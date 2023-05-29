@@ -1,9 +1,7 @@
 package net.iponweb.disthene.service.index;
 
 import net.iponweb.disthene.bean.Metric;
-import net.iponweb.disthene.bean.MetricPath;
 
-import org.apache.http.cookie.SetCookie;
 import org.apache.log4j.Logger;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.opensearch._types.Refresh;
@@ -13,10 +11,7 @@ import org.opensearch.client.opensearch.core.MgetRequest;
 import org.opensearch.client.opensearch.core.MgetResponse;
 import org.opensearch.client.opensearch.core.bulk.BulkOperation;
 import org.opensearch.client.opensearch.core.bulk.IndexOperation;
-import org.opensearch.client.opensearch.core.mget.MultiGetOperation;
 import org.opensearch.client.opensearch.core.mget.MultiGetResponseItem;
-import org.opensearch.client.opensearch.core.mget.MultiGetResponseItemBuilders;
-import org.opensearch.client.opensearch.core.mget.MultiGetError.Builder;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -101,7 +96,8 @@ public class IndexThread extends Thread {
         } catch (IOException e) {
             logger.error(e);
         }
-        
+        // logger.debug("OS - MGET REQ: " + ids.size() + " MGET RET: " + mGetDocuments.size());
+
         ArrayList<BulkOperation> ops = new ArrayList<>();
         for (MultiGetResponseItem m : mGetDocuments) {
             if(!m.result().found()) {
@@ -128,17 +124,20 @@ public class IndexThread extends Thread {
             }
 
         }
-        BulkRequest.Builder bulkReq = new BulkRequest.Builder()
-                .index(index)
-                .operations(ops)
-                .refresh(Refresh.WaitFor);
-        try {
-            BulkResponse bulkResponse = client.bulk(bulkReq.build());
-            //for (BulkResponseItem bri : bulkResponse.items()) {
-            //    logger.info(bri.status());
-            //}
-        } catch (IOException e) {
-            logger.error(e);
+        //logger.debug("OS - new metric paths: " + ops.size());
+        if (!ops.isEmpty()) {
+            BulkRequest.Builder bulkReq = new BulkRequest.Builder()
+                    .index(index)
+                    .operations(ops)
+                    .refresh(Refresh.WaitFor);
+            try {
+                BulkResponse bulkResponse = client.bulk(bulkReq.build());
+                //for (BulkResponseItem bri : bulkResponse.items()) {
+                //    logger.info(bri.status());
+                //}
+            } catch (IOException e) {
+                logger.error(e);
+            }
         }
         requests = new HashMap<String, Metric>();
     }
