@@ -1,26 +1,7 @@
 disthene: cassandra backed metric storage *writer*
 ==================================================
 
-This project is inspired by [cyanite](https://github.com/pyr/cyanite) and is intended to replace it in write mode only (thus transiently replacing **Graphite**).
-It must be fully compatible with **cyanite** and cyanite can still be used for reading. I've started another project 
-which will do the reads: [disthene-reader](https://github.com/EinsamHauer/disthene-reader). And, yes, I'm convinced that in a large scale setup (and that's why I started **disthene** project) it's best to separate these two roles. 
-
-## Motivation
-
-There are a couple of things which seem to be an absolute must and which were missing in **cyanite**:
-
-* aggregation: ability to sum similar metrics from several servers
-* blacklisting: ability to omit storing metrics which match a certain pattern. Makes not much sense by itself but is quite handy when you have previous item
-* caching incoming paths: this may really reduce the load on Elasticsearch cluster
-* some minimal set of own metrics (received count, write count, etc)
-* true multitenancy
-
-The other thing is performance. **Disthene** is being developed with one major requirement in mind - performance. 
-Essentially, in most cases the only bottleneck will be C\*. 
-There is no ultimate benchmark here (mostly because of the C\* bottleneck in test lab) 
-but it looks like something like 1M data points/core/minute should not be a problem     
-
-(Here is a quick performance [comparison](https://gist.github.com/EinsamHauer/2aa552a63add5415bfe5))
+This repository is a fork of [disthene](https://github.com/EinsamHauer/disthene) with support of AWS Opensearch instead of Elasticsearch.
 
 ## Compiling 
 
@@ -43,13 +24,14 @@ Moreover, it's strongly recommended to have some GC tuning. For a start here is 
 * -XX:CMSInitiatingOccupancyFraction=75
 * -XX:+ScavengeBeforeFullGC
 * -XX:+CMSScavengeBeforeRemark
+* -XX:+UseParallelGC
  
-There are a couple of things you will need in runtime, just the same set as for **cyanite**
+There are a couple of things you will need in runtime, just the same set as for **disthen**
 
-* Cassandra
-* Elasticsearch
+* Cassandra (4.x)
+* Opensearch (2.x) (maybe Elasticsearch)
 
-Cassandra schema is identical to that of **cyanite**:
+Cassandra schema:
 
 ```
 CREATE TABLE metric (
