@@ -73,8 +73,8 @@ public class IndexThread extends Thread {
     }
 
     private void addToBatch(Metric metric) {
-        
-        requests.put(this.hashPath(metric.getPath()), metric); ///add(metric);
+        String _id = metric.getTenant() + "_" + metric.getPath();
+        requests.put(this.hashPath(_id), metric); ///add(metric);
         if (requests.size() >= batchSize || (lastFlushTimestamp < System.currentTimeMillis() / 1000L - flushInterval)) {
             flush();
             lastFlushTimestamp = System.currentTimeMillis() / 1000L;
@@ -116,9 +116,10 @@ public class IndexThread extends Thread {
                     record.put("depth", i + 1);
                     record.put("tenant", metric.getTenant());
                     record.put("leaf", (i == parts.length - 1));
-
+                    
+                    String _id = metric.getTenant() + "_" + path;
                     ops.add(new BulkOperation.Builder().index(
-                            IndexOperation.of(io -> io.index(index).id(id).document(record))
+                            IndexOperation.of(io -> io.index(index).id(this.hashPath(_id)).document(record))
                     ).build());
                 }
             }
