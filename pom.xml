@@ -32,7 +32,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.42.Final</version>
+            <version>4.1.107.Final</version>
         </dependency>
         <dependency>
             <groupId>joda-time</groupId>
@@ -57,7 +57,7 @@
         <dependency>
             <groupId>com.datastax.cassandra</groupId>
             <artifactId>cassandra-driver-core</artifactId>
-            <version>3.11.5</version>
+            <version>3.1.0</version>
         </dependency>
         <dependency>
             <groupId>net.jpountz.lz4</groupId>
