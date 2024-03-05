@@ -11,7 +11,8 @@ import net.iponweb.disthene.bean.Metric;
 import net.iponweb.disthene.events.DistheneEvent;
 import net.iponweb.disthene.events.StoreErrorEvent;
 import net.iponweb.disthene.events.StoreSuccessEvent;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Collections;
 import java.util.Queue;
@@ -21,7 +22,7 @@ import java.util.concurrent.Executor;
  * @author Andrei Ivanov
  */
 public class SingleWriterThread extends WriterThread {
-    private Logger logger = Logger.getLogger(SingleWriterThread.class);
+    private static final Logger logger = LogManager.getLogger(SingleWriterThread.class);
 
     public SingleWriterThread(String name, MBassador<DistheneEvent> bus, Session session, PreparedStatement statement, Queue<Metric> metrics, Executor executor) {
         super(name, bus, session, statement, metrics, executor);

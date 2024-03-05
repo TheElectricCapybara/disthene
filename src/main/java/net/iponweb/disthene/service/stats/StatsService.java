@@ -9,7 +9,8 @@ import net.iponweb.disthene.config.Rollup;
 import net.iponweb.disthene.config.StatsConfiguration;
 import net.iponweb.disthene.events.*;
 import net.iponweb.disthene.util.NamedThreadFactory;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
@@ -25,7 +26,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class StatsService implements StatsServiceMBean {
     private static final String SCHEDULER_NAME = "distheneStatsFlusher";
 
-    private Logger logger = Logger.getLogger(StatsService.class);
+    private static final Logger logger = LogManager.getLogger(StatsService.class);
 
     private StatsConfiguration statsConfiguration;
 

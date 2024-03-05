@@ -9,7 +9,8 @@ import net.iponweb.disthene.config.IndexConfiguration;
 import net.iponweb.disthene.events.DistheneEvent;
 import net.iponweb.disthene.events.MetricStoreEvent;
 import net.iponweb.disthene.util.NamedThreadFactory;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.opensearch.client.opensearch.OpenSearchClient;
 import org.opensearch.client.transport.aws.AwsSdk2Transport;
 import org.opensearch.client.transport.aws.AwsSdk2TransportOptions;
@@ -30,7 +31,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class IndexService {
     private static final String SCHEDULER_NAME = "distheneIndexCacheExpire";
 
-    private Logger logger = Logger.getLogger(IndexService.class);
+    private static final Logger logger = LogManager.getLogger(IndexService.class);
 
     private IndexConfiguration indexConfiguration;
     private IndexThread indexThread;

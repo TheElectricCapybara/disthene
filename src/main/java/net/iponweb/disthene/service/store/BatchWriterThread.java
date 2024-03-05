@@ -8,7 +8,8 @@ import net.iponweb.disthene.bean.Metric;
 import net.iponweb.disthene.events.DistheneEvent;
 import net.iponweb.disthene.events.StoreErrorEvent;
 import net.iponweb.disthene.events.StoreSuccessEvent;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.Executor;
@@ -20,7 +21,7 @@ class BatchWriterThread extends WriterThread {
     //todo: interval via config?
     private static final long INTERVAL = 60_000;
 
-    private Logger logger = Logger.getLogger(BatchWriterThread.class);
+    private static final Logger logger = LogManager.getLogger(BatchWriterThread.class);
 
     private int batchSize;
 
