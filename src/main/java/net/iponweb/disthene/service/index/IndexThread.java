@@ -31,7 +31,7 @@ import java.security.NoSuchAlgorithmException;
  * @author Andrei Ivanov
  */
 public class IndexThread extends Thread {
-    private Logger logger = Logger.getLogger(IndexThread.class);
+    private static final Logger logger = LogManager.getLogger(IndexThread.class);
     private OpenSearchClient client;
     private String index;
     private String type;

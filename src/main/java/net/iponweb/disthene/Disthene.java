@@ -161,8 +161,8 @@ public class Disthene {
 
         try {
             CommandLine commandLine = parser.parse(options, args);
-            System.getProperties().setProperty("log4j.configuration", "file:" + commandLine.getOptionValue("l", DEFAULT_LOG_CONFIG_LOCATION));
-            logger = Logger.getLogger(Disthene.class);
+            System.getProperties().setProperty("log4j.configurationFile", "file:" + commandLine.getOptionValue("l", DEFAULT_LOG_CONFIG_LOCATION));
+            logger = LogManager.getLogger(Disthene.class);
 
             new Disthene(commandLine.getOptionValue("c", DEFAULT_CONFIG_LOCATION),
                     commandLine.getOptionValue("b", DEFAULT_BLACKLIST_LOCATION),

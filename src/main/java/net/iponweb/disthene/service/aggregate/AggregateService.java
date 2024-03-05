@@ -35,7 +35,7 @@ public class AggregateService {
     private static final int RATE = 10;
     private volatile boolean shuttingDown = false;
 
-    private Logger logger = Logger.getLogger(AggregateService.class);
+    private static final Logger logger = LogManager.getLogger(AggregateService.class);
 
     private MBassador<DistheneEvent> bus;
     private DistheneConfiguration distheneConfiguration;

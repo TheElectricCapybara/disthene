@@ -17,7 +17,7 @@ import org.apache.logging.log4j.Logger;
  * @author Andrei Ivanov
  */
 public class CarbonServerHandler extends ChannelInboundHandlerAdapter {
-    private Logger logger = Logger.getLogger(CarbonServerHandler.class);
+    private static final Logger logger = LogManager.getLogger(CarbonServerHandler.class);
 
     private MBassador<DistheneEvent> bus;
     private Rollup rollup;
