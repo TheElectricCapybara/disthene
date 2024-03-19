@@ -37,7 +37,7 @@ public class CarbonServerHandler extends ChannelInboundHandlerAdapter {
                 logger.warn("Metric is from distant past (older than 1 hour): " + metric);
             }
 
-            if (CharMatcher.ASCII.matchesAllOf(metric.getPath()) && CharMatcher.ASCII.matchesAllOf(metric.getTenant())) {
+            if (CharMatcher.ascii().matchesAllOf(metric.getPath()) && CharMatcher.ascii().matchesAllOf(metric.getTenant())) {
                 bus.post(new MetricReceivedEvent(metric)).now();
             } else {
                 logger.warn("Non ASCII characters received, discarding: " + metric);
